@@ -6,5 +6,6 @@ Experimenting with large print printable Fill In puzzles in JavaScript
 * Consider limiting length of words since shorter puzzles are harder
 * Add difficulty options
 * Consider unique words when setting difficulty
+* Add option to make multiple puzzles
 * Add option to make Clueless Crosswords
 * Make version that is playable online

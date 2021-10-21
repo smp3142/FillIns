@@ -26,7 +26,7 @@
       wordsOutput.forEach(element => {
         if (element.length > longest) { longest = element.length; }
       });
-      for (let length = 2; length < longest; length++) {
+      for (let length = 2; length <= longest; length++) {
         found = false;
         let line = "<smaller>" + length + " letters:</smaller> ";
         wordsOutput.forEach(element => {
