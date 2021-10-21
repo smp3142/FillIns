@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Fill-In Test App</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="./new.css">
+  <link rel="icon" href="data:,">
+  <script type="text/javascript" src="./wordsfile.js"></script>
+</head>
+
+<body>
+  <button class="hidden-print" onclick="DisplayPuzzle()">Make Puzzle</button>
+  <table id="outputPuzzle"></table>
+  <p class="largeText" id="outputWords"></p>
+  <table id="outputAnswer" style="page-break-before: always;"></table>
+
+  <script>
+    function DisplayPuzzle() {
+      let puzzle = MakePuzzle();
+
+      let wordsOutput = GetWords(puzzle);
+      let outputWords = "";
+      let longest = 2;
+      wordsOutput.forEach(element => {
+        if (element.length > longest) { longest = element.length; }
+      });
+      for (let length = 2; length < longest; length++) {
+        found = false;
+        let line = "<smaller>" + length + " letters:</smaller> ";
+        wordsOutput.forEach(element => {
+          if (element.length == length) {
+            line += element + " ";
+            found = true;
+          }
+        });
+        if (found) { outputWords += line + "<br>"; }
+      }
+
+      let outputAnswer = "";
+      let outputPuzzle = "";
+      for (let row = 0; row < puzzle.length; row++) {
+        outputAnswer += "<tr>";
+        outputPuzzle += "<tr>";
+        for (let col = 0; col < puzzle[row].length; col++) {
+          if (puzzle[row][col] == ".") {
+            outputAnswer += '<th class="EmptyTableItem"> </th>';
+            outputPuzzle += '<th class="EmptyTableItem"> </th>';
+          } else {
+            outputAnswer += '<th class="TableItem">';
+            outputAnswer += puzzle[row][col];
+            outputAnswer += "</th>";
+            outputPuzzle += '<th class="TableItem">';
+            outputPuzzle += " ";
+            outputPuzzle += "</th>";
+          }
+        }
+        outputAnswer += "</tr>";
+        outputPuzzle += "</tr>";
+      }
+
+      document.getElementById("outputWords").innerHTML = outputWords;
+      document.getElementById("outputPuzzle").innerHTML = outputPuzzle;
+      document.getElementById("outputAnswer").innerHTML = outputAnswer;
+    }
+
+    function MakePuzzle() {
+      let puzzle = [];
+      let dimensions = 13;
+      for (let i = 0; i < dimensions; i++) {
+        puzzle.push([]);
+        for (let j = 0; j < dimensions; j++) {
+          puzzle[i][j] = ".";
+        }
+      }
+
+      for (let t = 0; t < 500; t++) {
+        let newWord = words[Math.floor(Math.random() * words.length)];
+        AddWord(puzzle, dimensions, newWord);
+      }
+
+      words.forEach(word => {
+        if (word.length <= 3) {
+          AddWord(puzzle, dimensions, word);
+        }
+      });
+      return puzzle;
+    }
+
+    function AddWord(puzzle, dimensions, newWord) {
+      let limit = dimensions - newWord.length;
+      let goodLocation = true;
+      let hasBlank = false;
+
+      // Try adding to row in random location
+      for (let row = 0; row < dimensions; row++) {
+        let starts = FillRandom(limit);
+        for (let x = 0; x <= limit; x++) {
+          let start = starts[x];
+          goodLocation = true;
+          hasBlank = false;
+          for (let index = 0; index < newWord.length; index++) {
+            if (puzzle[row][start + index] == ".") {
+              hasBlank = true;
+            }
+            else if (puzzle[row][start + index] == newWord[index]) { }
+            else {
+              goodLocation = false;
+              break;
+            }
+          }
+          if (goodLocation && hasBlank) {
+            if (DidAddWord(puzzle, newWord, row, start, dimensions, true)) { return; }
+          }
+        }
+      }
+      // Try adding to col
+      for (let col = 0; col < dimensions; col++) {
+        for (let start = 0; start <= limit; start++) {
+          goodLocation = true;
+          hasBlank = false;
+          for (let index = 0; index < newWord.length; index++) {
+            if (puzzle[start + index][col] == ".") {
+              hasBlank = true;
+            }
+            else if (puzzle[start + index][col] == newWord[index]) { }
+            else {
+              goodLocation = false;
+              break;
+            }
+          }
+          if (goodLocation && hasBlank) {
+            if (DidAddWord(puzzle, newWord, start, col, dimensions, false)) { return; }
+          }
+        }
+      }
+    }
+
+    function DidAddWord(puzzle, newWord, row, col, dimensions, horizontal) {
+      let puzzleCopy = [];
+      for (let index = 0; index < puzzle.length; index++) {
+        puzzleCopy.push([...puzzle[index]]);
+      }
+      if (horizontal) {
+        for (let index = 0; index < newWord.length; index++) {
+          puzzleCopy[row][col + index] = newWord[index];
+        }
+      }
+      else {
+        for (let index = 0; index < newWord.length; index++) {
+          puzzleCopy[row + index][col] = newWord[index];
+        }
+      }
+
+      let validPuzzle = true;
+
+      // Check Rows
+      for (let row = 0; row < dimensions; row++) {
+        const line = puzzleCopy[row].join("");
+        const elements = line.split(".");
+        elements.forEach(element => {
+          if (element.length > 1 && !searchArray(element, words)) {
+            validPuzzle = false;
+          }
+        });
+      }
+      // Check Cols
+      for (let col = 0; col < dimensions; col++) {
+        if (!validPuzzle) { break; }
+        let word = "";
+        for (let row = 0; row < dimensions; row++) {
+          if (puzzleCopy[row][col] == ".") {
+            if (word.length > 1 && !searchArray(word, words)) {
+              validPuzzle = false;
+              break;
+            }
+            word = "";
+          } else {
+            word += puzzleCopy[row][col];
+          }
+        }
+        if (word.length > 1 && !searchArray(word, words)) {
+          validPuzzle = false;
+          break;
+        }
+      }
+
+      if (validPuzzle) {
+        for (let row = 0; row < dimensions; row++) {
+          for (let col = 0; col < dimensions; col++) {
+            puzzle[row][col] = puzzleCopy[row][col];
+          }
+        }
+        return true;
+      }
+    }
+
+    function searchArray(word, array) {
+      let start = 0;
+      let end = array.length - 1;
+      do {
+        let middle = Math.floor((start + end) / 2);
+        if (word == array[middle]) { return true; }
+        if (word > array[middle]) { start = middle + 1; }
+        else { end = middle - 1; }
+      } while (start <= end);
+      return false;
+    }
+
+    function FillRandom(limit) {
+      let randomArray = [];
+      for (let counter = 0; counter <= limit; counter++) {
+        randomArray.push(counter);
+      }
+      for (let index = 0; index <= limit; index++) {
+        let tempIndex = Math.floor(Math.random() * limit);
+        let temp = randomArray[tempIndex];
+        randomArray[tempIndex] = randomArray[index];
+        randomArray[index] = temp;
+      }
+      return randomArray;
+    }
+
+    function GetWords(puzzle) {
+      let wordsArray = [];
+
+      for (let row = 0; row < puzzle.length; row++) {
+        const line = puzzle[row].join("");
+        const elements = line.split(".");
+        elements.forEach(element => {
+          if (element.length > 1) {
+            wordsArray.push(element);
+          }
+        });
+      }
+
+      for (let col = 0; col < puzzle.length; col++) {
+        let word = "";
+        for (let row = 0; row < puzzle.length; row++) {
+          if (puzzle[row][col] == ".") {
+            if (word.length > 1) {
+              wordsArray.push(word);
+            }
+            word = "";
+          } else {
+            word += puzzle[row][col];
+          }
+        }
+        if (word.length > 1) {
+          wordsArray.push(word);
+        }
+      }
+      wordsArray.sort();
+      return wordsArray;
+    }
+
+  </script>
+</body>
+
+</html>
