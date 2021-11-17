@@ -364,8 +364,12 @@ img {
 
 @media print
 {    
-    .hidden-print
-    {
+    .hidden-print {
         display: none !important;
+    }
+
+    * {
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
     }
 }
