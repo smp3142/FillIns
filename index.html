@@ -17,6 +17,7 @@
   <table id="outputAnswer" style="page-break-before: always;"></table>
 
   <script>
+    'use strict';
     function DisplayPuzzle() {
       let puzzle = MakePuzzle();
 
@@ -27,7 +28,7 @@
         if (element.length > longest) { longest = element.length; }
       });
       for (let length = 2; length <= longest; length++) {
-        found = false;
+        let found = false;
         let line = "<smaller>" + length + " letters:</smaller> ";
         wordsOutput.forEach(element => {
           if (element.length == length) {
