@@ -4,6 +4,7 @@
     --nc-font-mono: Consolas, monaco, "Ubuntu Mono", "Liberation Mono", "Courier New", Courier, monospace;
     --nc-tx-1: #000000;
     --nc-tx-2: #1a1a1a;
+    --nc-tx-3: #808080;
     --nc-bg-1: #ffffff;
     --nc-bg-2: #f6f8fa;
     --nc-bg-3: #e5e7eb;
@@ -348,7 +349,7 @@ img {
 }
 
 .EmptyTableItem {
-    background-color: #a0a0a0;
+    background-color: #a7a7a7;
 }
 
 .TableItem {
@@ -360,6 +361,10 @@ img {
     font-size: 18px;
     width: 24px;
     height: 24px;
+}
+
+#outputAnswer {
+    color: var(--nc-tx-3);
 }
 
 @media print
